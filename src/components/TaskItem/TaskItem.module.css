@@ -1,0 +1,27 @@
+.item {
+    color: var(--color);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-block: 8px;
+    width: 70%;
+}
+
+.removeButton {
+    background-color: hsl(0deg 90% 45%);
+    color: hsl(0deg 0% 100%);
+    border: none;
+    border-radius: 50px;
+    height: var(--size);
+    width: var(--size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task {
+    flex: 1;
+    cursor: pointer;
+    text-decoration: var(--text-decoration);
+    color: var(--color);
+}

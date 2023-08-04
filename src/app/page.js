@@ -1,95 +1,76 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import MaxWidthContainer from '@/components/MaxWidthContainer';
+import TaskInput from '@/components/TaskInput';
+import TaskList from '@/components/TaskList';
+import { produce } from 'immer';
+import React from 'react';
+
+const reducer = (state, action) => {
+    return produce(state, draftState => {
+        switch (action.type) {
+            case 'new-task-content': {
+                draftState.task = action.task;
+                break;
+            }
+            case 'add-task-to-list': {
+                draftState.tasks.unshift({
+                    task: draftState.task,
+                    id: crypto.randomUUID(),
+                });
+                draftState.task = '';
+                break;
+            }
+            case 'start-editing-task': {
+                draftState.task = state.tasks.find(
+                    t => t.id === action.id
+                ).task;
+                draftState.editingId = action.id;
+                break;
+            }
+            case 'update-task-in-list': {
+                const index = state.tasks.findIndex(
+                    t => t.id === state.editingId
+                );
+                draftState.tasks[index].task = state.task;
+                draftState.task = '';
+                draftState.editingId = null;
+                break;
+            }
+            case 'toggle-complete': {
+                const index = state.tasks.findIndex(t => t.id === action.id);
+                draftState.tasks[index].complete = !state.tasks[index].complete;
+                break;
+            }
+            case 'delete-task': {
+                draftState.tasks = state.tasks.filter(t => t.id !== action.id);
+                break;
+            }
+            default:
+                break;
+        }
+    });
+};
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    const [state, dispatch] = React.useReducer(reducer, {
+        task: '',
+        tasks: [],
+        editingId: null,
+    });
+    return (
+        <MaxWidthContainer>
+            <h1>Task List</h1>
+            <TaskInput
+                dispatch={dispatch}
+                value={state.task}
+                isEditing={state.editingId !== null}
             />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+            <TaskList
+                tasks={state.tasks}
+                dispatch={dispatch}
+                editingId={state.editingId}
+            />
+        </MaxWidthContainer>
+    );
 }

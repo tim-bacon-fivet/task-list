@@ -1,0 +1,13 @@
+.list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.divider {
+    margin-block: 16px;
+}
+
+.completeHeading {
+    color: hsl(0deg 0% 65%);
+    font-size: 0.875rem;
+}
